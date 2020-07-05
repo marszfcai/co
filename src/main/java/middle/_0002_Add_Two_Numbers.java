@@ -1,5 +1,7 @@
 package middle;
 
+import java.util.List;
+
 /**
  * You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
  * <p>
@@ -14,7 +16,7 @@ public class _0002_Add_Two_Numbers {
     /**
      * Definition for singly-linked list.
      */
-    public class ListNode {
+    public static class ListNode {
         int val;
         ListNode next;
 
@@ -23,41 +25,66 @@ public class _0002_Add_Two_Numbers {
         }
     }
 
-    class Solution {
+    public static void main(String[] args) {
+        Solution2 solution = new Solution2();
+        ListNode l1 = new ListNode(9);
+//        l1.next = new ListNode(4);
+//        l1.next.next = new ListNode(3);
+        ListNode l2 = new ListNode(1);
+//        l2.next = new ListNode(6);
+//        l2.next.next = new ListNode(5);
+        ListNode resNode = solution.addTwoNumbers(l1, l2);
+        System.out.println();
+    }
+
+    /**
+     * 递归式 可能爆栈
+     * 注意指针传递
+     */
+    static class Solution {
         public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-            int resVal = l1.val + l2.val;
-            ListNode resNode = new ListNode(0);
-            if (resVal >= 10) {
-                resVal -= 10;
-                resNode.next = new ListNode(1);
-            }
-            resNode.val += resVal;
-            addNext(l1.next, l2.next, resNode);
-            return resNode;
+            ListNode startNode = new ListNode(0);
+            addNext(l1, l2, startNode, 0);
+            return startNode.next;
         }
 
-        private void addNext(ListNode l1, ListNode l2, ListNode parentNode) {
+        private void addNext(ListNode l1, ListNode l2, ListNode parentNode, int upF) {
             if (l1 == null && l2 == null) {
+                if (upF > 0) {
+                    parentNode.next = new ListNode(upF);
+                }
                 return;
             }
-            int var1 = 0;
-            int var2 = 0;
-            if (l1 != null) {
-                var1 = l1.val;
+            int var1 = l1 != null ? l1.val : 0;
+            int var2 = l2 != null ? l2.val : 0;
+            int resVal = var1 + var2 + upF;
+            int nodeVal = resVal % 10;
+            upF = resVal / 10;
+            parentNode.next = new ListNode(nodeVal);
+            addNext(l1 == null ? null : l1.next, l2 == null ? null : l2.next, parentNode.next, upF);
+        }
+    }
+
+    static class Solution2 {
+        public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+            ListNode e = new ListNode(0);
+            ListNode curr = e;
+            int upF = 0;
+            while (l1 != null || l2 != null) {
+                int var1 = l1 != null ? l1.val : 0;
+                int var2 = l2 != null ? l2.val : 0;
+                int resVal = var1 + var2 + upF;
+                int nodeVal = resVal % 10;
+                upF = resVal / 10;
+                curr.next = new ListNode(nodeVal);
+                l1 = l1 == null ? null : l1.next;
+                l2 = l2 == null ? null : l2.next;
+                curr = curr.next;
             }
-            if (l2 != null) {
-                var2 = l2.val;
+            if (upF > 0) {
+                curr.next = new ListNode(upF);
             }
-            int resVal = var1 + var2;
-            if (parentNode.next == null) {
-                parentNode.next = new ListNode(0);
-            }
-            parentNode.next.val += resVal;
-            if (parentNode.next.val >= 10) {
-                parentNode.next.val -= 10;
-                parentNode.next.next = new ListNode(1);
-            }
-            addNext(l1 == null ? null : l1.next, l2 == null ? null : l2.next, parentNode.next);
+            return e.next;
         }
     }
 }
